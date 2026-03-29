@@ -13,8 +13,9 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // 청소 진행 중 페이지에서는 내비 숨김
+  // 청소 진행 중 + 배정 페이지에서는 내비 숨김
   if (pathname.startsWith('/clean/')) return null;
+  if (pathname === '/admin/assign') return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-bark-200 z-50">
