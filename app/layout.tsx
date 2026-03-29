@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import BottomNav from '@/components/BottomNav';
 
 export const metadata: Metadata = {
   title: '달팽이아지트 청소 관리',
@@ -21,9 +22,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen">
-        <main className="max-w-lg mx-auto min-h-screen">
+        <main className="max-w-lg mx-auto min-h-screen pb-20">
           {children}
         </main>
+        <BottomNav />
       </body>
     </html>
   );

@@ -39,13 +39,13 @@ export default function HomePage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || '세션 생성 실패');
+        throw new Error(err.error || '\uC138\uC158 \uC0DD\uC131 \uC2E4\uD328');
       }
 
       const { session } = await res.json();
       router.push(`/clean/${session.id}`);
     } catch (e) {
-      alert(`세션 생성 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
+      alert(`\uC138\uC158 \uC0DD\uC131 \uC2E4\uD328: ${e instanceof Error ? e.message : '\uC54C \uC218 \uC5C6\uB294 \uC624\uB958'}`);
     } finally {
       setLoading(false);
       setSelectedName('');
@@ -53,98 +53,71 @@ export default function HomePage() {
   };
 
   return (
-    <div className="px-4 py-8 space-y-8">
+    <div className="px-4 py-6 space-y-6">
       {/* Hero */}
-      <div className="text-center space-y-3 pt-8">
-        <div className="text-6xl">🐌</div>
-        <h1 className="text-2xl font-bold text-bark-800">달팽이아지트</h1>
-        <p className="text-bark-500">청소 관리 시스템</p>
+      <div className="text-center space-y-2 pt-6">
+        <div className="text-5xl">{'\uD83D\uDC0C'}</div>
+        <h1 className="text-xl font-bold text-bark-800">{'\uB2EC\uD399\uC774\uC544\uC9C0\uD2B8'}</h1>
+        <p className="text-sm text-bark-400">{'\uCCAD\uC18C \uAD00\uB9AC \uC2DC\uC2A4\uD15C'}</p>
       </div>
 
       {/* Cleaner Selection */}
-      <div className="card space-y-4">
-        <h2 className="font-semibold text-bark-700 text-center">청소자 선택</h2>
-
-        <div className="space-y-2">
-          {CLEANERS.map((cleaner) => (
-            <button
-              key={cleaner.phone}
-              onClick={() => handleStart(cleaner)}
-              disabled={loading}
-              className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all
-                ${loading && selectedName === cleaner.name
-                  ? 'border-moss-500 bg-moss-50'
-                  : 'border-bark-200 hover:border-moss-400 hover:bg-moss-50/50'
-                }
-                ${loading && selectedName !== cleaner.name ? 'opacity-50' : ''}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold text-lg">
-                  {cleaner.name[0]}
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-bark-800">{cleaner.name}</p>
-                  <p className="text-xs text-bark-500">{cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</p>
-                </div>
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-bark-500 px-1">{'\uCCAD\uC18C\uC790 \uC120\uD0DD'}</h2>
+        {CLEANERS.map((cleaner) => (
+          <button
+            key={cleaner.phone}
+            onClick={() => handleStart(cleaner)}
+            disabled={loading}
+            className={`w-full flex items-center justify-between p-4 rounded-2xl bg-white border-2 transition-all shadow-sm
+              ${loading && selectedName === cleaner.name
+                ? 'border-moss-500 bg-moss-50'
+                : 'border-transparent hover:border-moss-300'
+              }
+              ${loading && selectedName !== cleaner.name ? 'opacity-50' : ''}`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold text-lg">
+                {cleaner.name[0]}
               </div>
-              {loading && selectedName === cleaner.name ? (
-                <span className="text-sm text-moss-600 animate-pulse">시작 중...</span>
-              ) : (
-                <span className="text-sm text-moss-600 font-medium">청소 시작 &rsaquo;</span>
-              )}
-            </button>
-          ))}
-        </div>
+              <div className="text-left">
+                <p className="font-semibold text-bark-800">{cleaner.name}</p>
+                <p className="text-xs text-bark-400">{cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</p>
+              </div>
+            </div>
+            {loading && selectedName === cleaner.name ? (
+              <span className="text-sm text-moss-600 animate-pulse">{'\uC2DC\uC791 \uC911...'}</span>
+            ) : (
+              <span className="text-moss-600 text-xl">&rsaquo;</span>
+            )}
+          </button>
+        ))}
       </div>
 
       {/* Resume Sessions */}
       {resumeSessions.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-bark-600 px-1">진행 중인 세션</h3>
+          <h2 className="text-sm font-semibold text-bark-500 px-1">{'\uC9C4\uD589 \uC911\uC778 \uCCAD\uC18C'}</h2>
           {resumeSessions.map((session) => (
             <button
               key={session.id}
               onClick={() => router.push(`/clean/${session.id}`)}
-              className="card w-full text-left hover:shadow-md transition-shadow"
+              className="w-full flex items-center justify-between p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-bark-800">{session.cleaner_name}</p>
-                  <p className="text-xs text-bark-500">{session.session_date}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-lg">
+                  {session.cleaner_name[0]}
                 </div>
-                <span className="badge-progress">이어하기 &rsaquo;</span>
+                <div className="text-left">
+                  <p className="font-medium text-bark-800">{session.cleaner_name}</p>
+                  <p className="text-xs text-bark-400">{session.session_date}</p>
+                </div>
               </div>
+              <span className="badge-progress">{'\uC774\uC5B4\uD558\uAE30'} &rsaquo;</span>
             </button>
           ))}
         </div>
       )}
-
-      {/* Quick Links */}
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => router.push('/review')}
-          className="card text-center hover:shadow-md transition-shadow"
-        >
-          <div className="text-2xl mb-1">📋</div>
-          <p className="text-sm font-medium text-bark-700">검수하기</p>
-        </button>
-        <button
-          onClick={() => router.push('/history')}
-          className="card text-center hover:shadow-md transition-shadow"
-        >
-          <div className="text-2xl mb-1">📊</div>
-          <p className="text-sm font-medium text-bark-700">청소 이력</p>
-        </button>
-      </div>
-
-      <div className="text-center">
-        <button
-          onClick={() => router.push('/manual')}
-          className="text-sm text-bark-400 underline"
-        >
-          매뉴얼 영상 관리
-        </button>
-      </div>
     </div>
   );
 }
