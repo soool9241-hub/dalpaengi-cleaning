@@ -3,27 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import type { CleaningSession, Cleaner } from '@/lib/types';
+import { CLEANERS, type RegisteredCleaner } from '@/lib/cleaners';
+import type { CleaningSession } from '@/lib/types';
 
 export default function HomePage() {
   const router = useRouter();
-  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
-  const [selectedCleaner, setSelectedCleaner] = useState<Cleaner | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedName, setSelectedName] = useState('');
   const [resumeSessions, setResumeSessions] = useState<CleaningSession[]>([]);
 
   useEffect(() => {
-    // 등록된 청소자 목록 로드
-    supabase
-      .from('cleaners')
-      .select('*')
-      .eq('is_active', true)
-      .order('name')
-      .then(({ data }) => {
-        if (data) setCleaners(data as Cleaner[]);
-      });
-
-    // 진행 중인 세션 로드
     supabase
       .from('cleaning_sessions')
       .select('*')
@@ -35,9 +24,9 @@ export default function HomePage() {
       });
   }, []);
 
-  const handleStart = async (cleaner: Cleaner) => {
+  const handleStart = async (cleaner: RegisteredCleaner) => {
     setLoading(true);
-    setSelectedCleaner(cleaner);
+    setSelectedName(cleaner.name);
     try {
       const res = await fetch('/api/session/create', {
         method: 'POST',
@@ -48,15 +37,18 @@ export default function HomePage() {
         }),
       });
 
-      if (!res.ok) throw new Error('세션 생성 실패');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || '세션 생성 실패');
+      }
 
       const { session } = await res.json();
       router.push(`/clean/${session.id}`);
-    } catch {
-      alert('세션 생성에 실패했습니다. 다시 시도해주세요.');
+    } catch (e) {
+      alert(`세션 생성 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
     } finally {
       setLoading(false);
-      setSelectedCleaner(null);
+      setSelectedName('');
     }
   };
 
@@ -74,38 +66,34 @@ export default function HomePage() {
         <h2 className="font-semibold text-bark-700 text-center">청소자 선택</h2>
 
         <div className="space-y-2">
-          {cleaners.map((cleaner) => (
+          {CLEANERS.map((cleaner) => (
             <button
-              key={cleaner.id}
+              key={cleaner.phone}
               onClick={() => handleStart(cleaner)}
               disabled={loading}
               className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all
-                ${loading && selectedCleaner?.id === cleaner.id
+                ${loading && selectedName === cleaner.name
                   ? 'border-moss-500 bg-moss-50'
                   : 'border-bark-200 hover:border-moss-400 hover:bg-moss-50/50'
                 }
-                ${loading && selectedCleaner?.id !== cleaner.id ? 'opacity-50' : ''}`}
+                ${loading && selectedName !== cleaner.name ? 'opacity-50' : ''}`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
+                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold text-lg">
                   {cleaner.name[0]}
                 </div>
                 <div className="text-left">
                   <p className="font-semibold text-bark-800">{cleaner.name}</p>
-                  <p className="text-xs text-bark-500">{cleaner.phone}</p>
+                  <p className="text-xs text-bark-500">{cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</p>
                 </div>
               </div>
-              {loading && selectedCleaner?.id === cleaner.id ? (
+              {loading && selectedName === cleaner.name ? (
                 <span className="text-sm text-moss-600 animate-pulse">시작 중...</span>
               ) : (
-                <span className="text-sm text-moss-600 font-medium">청소 시작</span>
+                <span className="text-sm text-moss-600 font-medium">청소 시작 &rsaquo;</span>
               )}
             </button>
           ))}
-
-          {cleaners.length === 0 && (
-            <p className="text-center text-bark-400 py-4">등록된 청소자가 없습니다</p>
-          )}
         </div>
       </div>
 
@@ -124,7 +112,7 @@ export default function HomePage() {
                   <p className="font-medium text-bark-800">{session.cleaner_name}</p>
                   <p className="text-xs text-bark-500">{session.session_date}</p>
                 </div>
-                <span className="badge-progress">진행중</span>
+                <span className="badge-progress">이어하기 &rsaquo;</span>
               </div>
             </button>
           ))}
