@@ -114,7 +114,7 @@ export default function AdminHistoryPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold text-sm">
-                      {session.cleaner_name[0]}
+                      {session.cleaner_name.slice(-1)}
                     </div>
                     <div>
                       <p className="font-semibold text-bark-800 text-sm">{session.cleaner_name}</p>

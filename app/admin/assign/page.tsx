@@ -144,7 +144,7 @@ export default function AssignPage() {
                           : 'bg-bark-100 text-bark-400 hover:bg-bark-200'
                         }`}
                     >
-                      {cleaner.name[0]}
+                      {cleaner.name.slice(-1)}
                     </button>
                   );
                 })}
@@ -180,7 +180,7 @@ export default function AssignPage() {
         {cleaners.map(cleaner => (
           <div key={cleaner.id} className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-moss-600 text-white text-xs font-bold flex items-center justify-center">
-              {cleaner.name[0]}
+              {cleaner.name.slice(-1)}
             </div>
             <span className="text-sm text-bark-700">{cleaner.name}</span>
           </div>

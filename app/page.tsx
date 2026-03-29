@@ -86,7 +86,7 @@ export default function HomePage() {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold">
-                  {session.cleaner_name[0]}
+                  {session.cleaner_name.slice(-1)}
                 </div>
                 <div className="text-left">
                   <p className="font-medium text-bark-800">{session.cleaner_name}</p>
@@ -129,7 +129,7 @@ export default function HomePage() {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
-                  {cleaner.name[0]}
+                  {cleaner.name.slice(-1)}
                 </div>
                 <div className="text-left">
                   <p className="font-semibold text-bark-800">{cleaner.name}</p>

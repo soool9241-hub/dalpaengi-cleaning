@@ -113,7 +113,7 @@ export default function CleanersManagePage() {
             <div key={cleaner.id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
-                  {cleaner.name[0]}
+                  {cleaner.name.slice(-1)}
                 </div>
                 <div>
                   <p className="font-semibold text-bark-800">{cleaner.name}</p>
