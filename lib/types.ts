@@ -46,6 +46,14 @@ export interface CleaningManual {
   updated_at: string;
 }
 
+export interface Cleaner {
+  id: string;
+  name: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface SessionSummary {
   id: string;
   cleaner_name: string;

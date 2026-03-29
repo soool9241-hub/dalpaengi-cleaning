@@ -3,16 +3,27 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import type { CleaningSession } from '@/lib/types';
+import type { CleaningSession, Cleaner } from '@/lib/types';
 
 export default function HomePage() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
+  const [selectedCleaner, setSelectedCleaner] = useState<Cleaner | null>(null);
   const [loading, setLoading] = useState(false);
   const [resumeSessions, setResumeSessions] = useState<CleaningSession[]>([]);
 
   useEffect(() => {
+    // 등록된 청소자 목록 로드
+    supabase
+      .from('cleaners')
+      .select('*')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data) setCleaners(data as Cleaner[]);
+      });
+
+    // 진행 중인 세션 로드
     supabase
       .from('cleaning_sessions')
       .select('*')
@@ -24,17 +35,17 @@ export default function HomePage() {
       });
   }, []);
 
-  const handleStart = async () => {
-    if (!name.trim()) {
-      alert('이름을 입력해주세요');
-      return;
-    }
+  const handleStart = async (cleaner: Cleaner) => {
     setLoading(true);
+    setSelectedCleaner(cleaner);
     try {
       const res = await fetch('/api/session/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cleanerName: name.trim(), cleanerPhone: phone.trim() }),
+        body: JSON.stringify({
+          cleanerName: cleaner.name,
+          cleanerPhone: cleaner.phone,
+        }),
       });
 
       if (!res.ok) throw new Error('세션 생성 실패');
@@ -45,6 +56,7 @@ export default function HomePage() {
       alert('세션 생성에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);
+      setSelectedCleaner(null);
     }
   };
 
@@ -57,40 +69,44 @@ export default function HomePage() {
         <p className="text-bark-500">청소 관리 시스템</p>
       </div>
 
-      {/* Start Form */}
+      {/* Cleaner Selection */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-bark-700 text-center">청소 시작</h2>
+        <h2 className="font-semibold text-bark-700 text-center">청소자 선택</h2>
 
-        <div>
-          <label className="block text-sm text-bark-600 mb-1">이름 *</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="청소자 이름"
-            className="input-field"
-            autoFocus
-          />
+        <div className="space-y-2">
+          {cleaners.map((cleaner) => (
+            <button
+              key={cleaner.id}
+              onClick={() => handleStart(cleaner)}
+              disabled={loading}
+              className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all
+                ${loading && selectedCleaner?.id === cleaner.id
+                  ? 'border-moss-500 bg-moss-50'
+                  : 'border-bark-200 hover:border-moss-400 hover:bg-moss-50/50'
+                }
+                ${loading && selectedCleaner?.id !== cleaner.id ? 'opacity-50' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
+                  {cleaner.name[0]}
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-bark-800">{cleaner.name}</p>
+                  <p className="text-xs text-bark-500">{cleaner.phone}</p>
+                </div>
+              </div>
+              {loading && selectedCleaner?.id === cleaner.id ? (
+                <span className="text-sm text-moss-600 animate-pulse">시작 중...</span>
+              ) : (
+                <span className="text-sm text-moss-600 font-medium">청소 시작</span>
+              )}
+            </button>
+          ))}
+
+          {cleaners.length === 0 && (
+            <p className="text-center text-bark-400 py-4">등록된 청소자가 없습니다</p>
+          )}
         </div>
-
-        <div>
-          <label className="block text-sm text-bark-600 mb-1">전화번호 (검수 결과 수신용)</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="010-0000-0000"
-            className="input-field"
-          />
-        </div>
-
-        <button
-          onClick={handleStart}
-          disabled={loading || !name.trim()}
-          className="btn-primary w-full"
-        >
-          {loading ? '생성 중...' : '청소 시작하기'}
-        </button>
       </div>
 
       {/* Resume Sessions */}
