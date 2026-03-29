@@ -33,17 +33,17 @@ export default function FloorPlan({ onZoneClick, getZoneColor, getZoneLabel }: F
 
     // 중앙 - 거실
     { id: 'living', name: '\uAC70\uC2E4', icon: '\uD83C\uDFE0',
-      top: '22%', left: '26%', width: '30%', height: '58%' },
+      top: '22%', left: '26%', width: '30%', height: '38%' },
 
-    // 우측 - 작은방들
-    { id: 'small_room_right', name: '\uC6B0\uCE21\uC791\uC740\uBC292', icon: '\uD83D\uDECF\uFE0F',
-      top: '42%', left: '57%', width: '22%', height: '18%' },
+    // 현관 좌우 - 작은방들
     { id: 'small_room_left', name: '\uC88C\uCE21\uC791\uC740\uBC291', icon: '\uD83D\uDECF\uFE0F',
-      top: '62%', left: '57%', width: '22%', height: '18%' },
+      top: '62%', left: '26%', width: '14%', height: '18%' },
+    { id: 'small_room_right', name: '\uC6B0\uCE21\uC791\uC740\uBC292', icon: '\uD83D\uDECF\uFE0F',
+      top: '62%', left: '42%', width: '14%', height: '18%' },
 
     // 외부 - 바베큐 (우측 초록 영역)
     { id: 'bbq', name: '\uBC14\uBCA0\uD050', icon: '\uD83D\uDD25',
-      top: '22%', left: '81%', width: '19%', height: '58%' },
+      top: '22%', left: '58%', width: '22%', height: '58%' },
   ];
 
   return (
@@ -54,14 +54,14 @@ export default function FloorPlan({ onZoneClick, getZoneColor, getZoneLabel }: F
       >
         {/* 현관 표시 */}
         <div className="absolute flex items-center justify-center text-[10px] text-bark-400 font-medium border border-dashed border-bark-300 rounded-lg bg-white/50"
-          style={{ bottom: '2%', left: '34%', width: '14%', height: '8%' }}
+          style={{ top: '82%', left: '32%', width: '16%', height: '8%' }}
         >
           {'\uD83D\uDEAA \uD604\uAD00'}
         </div>
 
         {/* 외부 잔디 배경 */}
         <div className="absolute rounded-xl bg-green-100/60"
-          style={{ top: '18%', left: '78%', width: '22%', height: '65%', zIndex: 0 }}
+          style={{ top: '18%', left: '55%', width: '28%', height: '68%', zIndex: 0 }}
         />
 
         {/* Zones */}
