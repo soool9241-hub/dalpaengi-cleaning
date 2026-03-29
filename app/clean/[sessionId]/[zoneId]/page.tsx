@@ -52,16 +52,22 @@ export default function ZoneDetailPage() {
   useEffect(() => { loadData(); }, [loadData]);
 
   const handleToggle = async (taskIndex: number, isChecked: boolean) => {
+    const prev = checks;
     // Optimistic update
-    setChecks(prev => prev.map(c =>
-      c.task_index === taskIndex ? { ...c, is_checked: isChecked } : c
+    setChecks(c => c.map(item =>
+      item.task_index === taskIndex ? { ...item, is_checked: isChecked } : item
     ));
 
-    await fetch('/api/check/toggle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, zoneId, taskIndex, isChecked }),
-    });
+    try {
+      const res = await fetch('/api/check/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, zoneId, taskIndex, isChecked }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setChecks(prev); // rollback
+    }
   };
 
   const handleMediaUpload = (media: CleaningMedia) => {
