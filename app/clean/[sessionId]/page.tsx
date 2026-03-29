@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { ZONES, INTERIOR_ZONES, EXTERIOR_ZONES, TOTAL_MIN_PHOTOS } from '@/lib/zones';
+import { ZONES } from '@/lib/zones';
 import type { CleaningSession, CleaningCheck, CleaningMedia, ZoneProgress } from '@/lib/types';
 import SessionHeader from '@/components/SessionHeader';
 import ZoneCard from '@/components/ZoneCard';
@@ -56,10 +56,19 @@ export default function CleanSessionPage() {
     };
   };
 
+  // Filter zones by assignment if applicable
+  const assignedZoneIds = (session as unknown as Record<string, unknown>)?.assigned_zones as string[] | null;
+  const activeZones = assignedZoneIds
+    ? ZONES.filter(z => assignedZoneIds.includes(z.id))
+    : ZONES;
+  const activeInterior = activeZones.filter(z => z.category === 'interior');
+  const activeExterior = activeZones.filter(z => z.category === 'exterior');
+  const activeMinPhotos = activeZones.reduce((sum, z) => sum + z.minPhotos, 0);
+
   const totalChecked = checks.filter(c => c.is_checked).length;
   const totalTasks = checks.length;
   const totalMedia = media.length;
-  const allZonesComplete = ZONES.every(z => getZoneProgress(z.id).isComplete);
+  const allZonesComplete = activeZones.every(z => getZoneProgress(z.id).isComplete);
 
   const handleComplete = async () => {
     if (!allZonesComplete) {
@@ -104,38 +113,42 @@ export default function CleanSessionPage() {
         totalTasks={totalTasks}
         checkedTasks={totalChecked}
         totalMedia={totalMedia}
-        requiredMedia={TOTAL_MIN_PHOTOS}
+        requiredMedia={activeMinPhotos}
       />
 
       {/* Interior Zones */}
-      <div>
-        <h2 className="text-sm font-semibold text-bark-600 mb-2 px-1">📋 내부 (9구역)</h2>
-        <div className="space-y-2">
-          {INTERIOR_ZONES.map(zone => (
-            <ZoneCard
-              key={zone.id}
-              zone={zone}
-              sessionId={sessionId}
-              progress={getZoneProgress(zone.id)}
-            />
-          ))}
+      {activeInterior.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-bark-600 mb-2 px-1">{'\uD83D\uDCCB \uB0B4\uBD80'} ({activeInterior.length}{'\uAD6C\uC5ED'})</h2>
+          <div className="space-y-2">
+            {activeInterior.map(zone => (
+              <ZoneCard
+                key={zone.id}
+                zone={zone}
+                sessionId={sessionId}
+                progress={getZoneProgress(zone.id)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Exterior Zones */}
-      <div>
-        <h2 className="text-sm font-semibold text-bark-600 mb-2 px-1">🏕️ 외부 (1구역)</h2>
-        <div className="space-y-2">
-          {EXTERIOR_ZONES.map(zone => (
-            <ZoneCard
-              key={zone.id}
-              zone={zone}
-              sessionId={sessionId}
-              progress={getZoneProgress(zone.id)}
-            />
-          ))}
+      {activeExterior.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-bark-600 mb-2 px-1">{'\uD83C\uDFD5\uFE0F \uC678\uBD80'} ({activeExterior.length}{'\uAD6C\uC5ED'})</h2>
+          <div className="space-y-2">
+            {activeExterior.map(zone => (
+              <ZoneCard
+                key={zone.id}
+                zone={zone}
+                sessionId={sessionId}
+                progress={getZoneProgress(zone.id)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Complete Button - Fixed Bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-bark-100 p-4">
@@ -149,7 +162,7 @@ export default function CleanSessionPage() {
               ? '처리 중...'
               : allZonesComplete
                 ? '청소 완료 + 검수 요청'
-                : `미완료 구역 ${ZONES.filter(z => !getZoneProgress(z.id).isComplete).length}개`}
+                : `\uBBF8\uC644\uB8CC \uAD6C\uC5ED ${activeZones.filter(z => !getZoneProgress(z.id).isComplete).length}\uAC1C`}
           </button>
         </div>
       </div>

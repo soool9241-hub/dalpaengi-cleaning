@@ -3,30 +3,43 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { CLEANERS, type RegisteredCleaner } from '@/lib/cleaners';
 import type { CleaningSession } from '@/lib/types';
+
+interface Cleaner {
+  id: string;
+  name: string;
+  phone: string;
+}
 
 export default function HomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [selectedName, setSelectedName] = useState('');
+  const [selectedId, setSelectedId] = useState('');
+  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
   const [resumeSessions, setResumeSessions] = useState<CleaningSession[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from('cleaning_sessions')
-      .select('*')
-      .eq('status', 'in_progress')
-      .order('created_at', { ascending: false })
-      .limit(5)
-      .then(({ data }) => {
-        if (data) setResumeSessions(data as CleaningSession[]);
-      });
+    const load = async () => {
+      const [cleanersRes, sessionsRes] = await Promise.all([
+        fetch('/api/cleaners').then(r => r.json()),
+        supabase
+          .from('cleaning_sessions')
+          .select('*')
+          .eq('status', 'in_progress')
+          .order('created_at', { ascending: false })
+          .limit(5),
+      ]);
+      setCleaners(cleanersRes.cleaners || []);
+      if (sessionsRes.data) setResumeSessions(sessionsRes.data as CleaningSession[]);
+      setLoadingData(false);
+    };
+    load();
   }, []);
 
-  const handleStart = async (cleaner: RegisteredCleaner) => {
+  const handleStart = async (cleaner: Cleaner) => {
     setLoading(true);
-    setSelectedName(cleaner.name);
+    setSelectedId(cleaner.id);
     try {
       const res = await fetch('/api/session/create', {
         method: 'POST',
@@ -48,7 +61,7 @@ export default function HomePage() {
       alert(`\uC138\uC158 \uC0DD\uC131 \uC2E4\uD328: ${e instanceof Error ? e.message : '\uC54C \uC218 \uC5C6\uB294 \uC624\uB958'}`);
     } finally {
       setLoading(false);
-      setSelectedName('');
+      setSelectedId('');
     }
   };
 
@@ -61,42 +74,9 @@ export default function HomePage() {
         <p className="text-sm text-bark-400">{'\uCCAD\uC18C \uAD00\uB9AC \uC2DC\uC2A4\uD15C'}</p>
       </div>
 
-      {/* Cleaner Selection */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-bark-500 px-1">{'\uCCAD\uC18C\uC790 \uC120\uD0DD'}</h2>
-        {CLEANERS.map((cleaner) => (
-          <button
-            key={cleaner.phone}
-            onClick={() => handleStart(cleaner)}
-            disabled={loading}
-            className={`w-full flex items-center justify-between p-4 rounded-2xl bg-white border-2 transition-all shadow-sm
-              ${loading && selectedName === cleaner.name
-                ? 'border-moss-500 bg-moss-50'
-                : 'border-transparent hover:border-moss-300'
-              }
-              ${loading && selectedName !== cleaner.name ? 'opacity-50' : ''}`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold text-lg">
-                {cleaner.name[0]}
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-bark-800">{cleaner.name}</p>
-                <p className="text-xs text-bark-400">{cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</p>
-              </div>
-            </div>
-            {loading && selectedName === cleaner.name ? (
-              <span className="text-sm text-moss-600 animate-pulse">{'\uC2DC\uC791 \uC911...'}</span>
-            ) : (
-              <span className="text-moss-600 text-xl">&rsaquo;</span>
-            )}
-          </button>
-        ))}
-      </div>
-
       {/* Resume Sessions */}
       {resumeSessions.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <h2 className="text-sm font-semibold text-bark-500 px-1">{'\uC9C4\uD589 \uC911\uC778 \uCCAD\uC18C'}</h2>
           {resumeSessions.map((session) => (
             <button
@@ -105,7 +85,7 @@ export default function HomePage() {
               className="w-full flex items-center justify-between p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-lg">
+                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold">
                   {session.cleaner_name[0]}
                 </div>
                 <div className="text-left">
@@ -118,6 +98,53 @@ export default function HomePage() {
           ))}
         </div>
       )}
+
+      {/* Cleaner Selection - New Session */}
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-bark-500 px-1">{'\uC0C8 \uCCAD\uC18C \uC2DC\uC791'}</h2>
+        {loadingData ? (
+          <div className="p-8 text-center text-bark-400 animate-pulse">{'\uB85C\uB529...'}</div>
+        ) : cleaners.length === 0 ? (
+          <div className="card text-center text-bark-400 space-y-2">
+            <p>{'\uB4F1\uB85D\uB41C \uCCAD\uC18C\uC790\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4'}</p>
+            <button
+              onClick={() => router.push('/admin/cleaners')}
+              className="text-sm text-moss-600 underline"
+            >
+              {'\uCCAD\uC18C\uC790 \uB4F1\uB85D\uD558\uAE30'}
+            </button>
+          </div>
+        ) : (
+          cleaners.map((cleaner) => (
+            <button
+              key={cleaner.id}
+              onClick={() => handleStart(cleaner)}
+              disabled={loading}
+              className={`w-full flex items-center justify-between p-4 rounded-2xl bg-white border-2 transition-all shadow-sm
+                ${loading && selectedId === cleaner.id
+                  ? 'border-moss-500 bg-moss-50'
+                  : 'border-transparent hover:border-moss-300'
+                }
+                ${loading && selectedId !== cleaner.id ? 'opacity-50' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
+                  {cleaner.name[0]}
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-bark-800">{cleaner.name}</p>
+                  <p className="text-xs text-bark-400">{cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}</p>
+                </div>
+              </div>
+              {loading && selectedId === cleaner.id ? (
+                <span className="text-sm text-moss-600 animate-pulse">{'\uC2DC\uC791 \uC911...'}</span>
+              ) : (
+                <span className="text-moss-600 text-xl">&rsaquo;</span>
+              )}
+            </button>
+          ))
+        )}
+      </div>
     </div>
   );
 }

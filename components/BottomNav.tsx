@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { href: '/', icon: '\u{1F9F9}', label: '\uCCAD\uC18C' },
   { href: '/review', icon: '\u2705', label: '\uAC80\uC218' },
   { href: '/history', icon: '\uD83D\uDCCB', label: '\uC774\uB825' },
-  { href: '/manual', icon: '\uD83C\uDFAC', label: '\uB9E4\uB274\uC5BC' },
+  { href: '/admin', icon: '\u2699\uFE0F', label: '\uAD00\uB9AC' },
 ];
 
 export default function BottomNav() {
