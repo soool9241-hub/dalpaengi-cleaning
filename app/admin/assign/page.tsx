@@ -100,11 +100,10 @@ export default function AssignPage() {
   const distributeEvenly = () => {
     const newAssign: Record<string, string> = {};
     const zoneIds = ZONES.map(z => z.id);
-    // 1인 1구역씩 순서대로 배정
+    // 전체 구역을 인원수대로 균등 분배 (한 구역에 한 사람만)
     zoneIds.forEach((zoneId, i) => {
-      if (i < cleaners.length) {
-        newAssign[zoneId] = cleaners[i].id;
-      }
+      const cleanerIdx = i % cleaners.length;
+      newAssign[zoneId] = cleaners[cleanerIdx].id;
     });
     setAssignments(newAssign);
   };
