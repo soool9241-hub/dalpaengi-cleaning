@@ -36,6 +36,22 @@ export default function AssignPage() {
         const list = data.cleaners || [];
         setCleaners(list);
         if (list.length > 0) setSelectedCleaner(list[0].id);
+
+        // 저장된 배정 불러오기
+        try {
+          const saved = localStorage.getItem('zone_assignments');
+          if (saved) {
+            const parsed = JSON.parse(saved) as Record<string, string>;
+            // 유효한 청소자만 필터 (삭제된 청소자 제외)
+            const validIds = new Set(list.map((c: Cleaner) => c.id));
+            const filtered: Record<string, string> = {};
+            for (const [zoneId, cleanerId] of Object.entries(parsed)) {
+              if (validIds.has(cleanerId)) filtered[zoneId] = cleanerId;
+            }
+            setAssignments(filtered);
+          }
+        } catch { /* ignore */ }
+
         setLoading(false);
       });
   }, []);
@@ -127,6 +143,9 @@ export default function AssignPage() {
 
     setSubmitting(true);
     try {
+      // 배정 패턴 저장
+      localStorage.setItem('zone_assignments', JSON.stringify(assignments));
+
       const res = await fetch('/api/admin/assign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
