@@ -19,6 +19,12 @@ export default function CleanersManagePage() {
   const [phone, setPhone] = useState('');
   const [adding, setAdding] = useState(false);
 
+  // Edit state
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [saving, setSaving] = useState(false);
+
   const loadCleaners = async () => {
     const res = await fetch('/api/cleaners');
     const data = await res.json();
@@ -52,6 +58,44 @@ export default function CleanersManagePage() {
       alert('\uCD94\uAC00 \uC2E4\uD328');
     } finally {
       setAdding(false);
+    }
+  };
+
+  const startEdit = (cleaner: Cleaner) => {
+    setEditId(cleaner.id);
+    setEditName(cleaner.name);
+    setEditPhone(cleaner.phone);
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditName('');
+    setEditPhone('');
+  };
+
+  const handleSave = async () => {
+    if (!editId || !editName.trim() || !editPhone.trim()) {
+      alert('\uC774\uB984\uACFC \uC804\uD654\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694');
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/cleaners/${editId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName.trim(), phone: editPhone.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error);
+        return;
+      }
+      cancelEdit();
+      loadCleaners();
+    } catch {
+      alert('\uC218\uC815 \uC2E4\uD328');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -110,24 +154,70 @@ export default function CleanersManagePage() {
           <div className="card text-center text-bark-400">{'\uB4F1\uB85D\uB41C \uCCAD\uC18C\uC790\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4'}</div>
         ) : (
           cleaners.map(cleaner => (
-            <div key={cleaner.id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
-                  {cleaner.name.slice(-1)}
+            <div key={cleaner.id} className="p-4 bg-white rounded-2xl shadow-sm space-y-3">
+              {editId === cleaner.id ? (
+                <>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      className="input-field text-sm"
+                      placeholder={'\uC774\uB984'}
+                    />
+                    <input
+                      type="tel"
+                      value={editPhone}
+                      onChange={e => setEditPhone(e.target.value)}
+                      className="input-field text-sm"
+                      placeholder={'\uC804\uD654\uBC88\uD638'}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex-1 py-2 bg-moss-600 text-white rounded-lg text-sm font-medium"
+                    >
+                      {saving ? '\uC800\uC7A5 \uC911...' : '\uC800\uC7A5'}
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="flex-1 py-2 bg-bark-100 text-bark-600 rounded-lg text-sm font-medium"
+                    >
+                      {'\uCDE8\uC18C'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-moss-100 rounded-full flex items-center justify-center text-moss-700 font-bold">
+                      {cleaner.name.slice(-1)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-bark-800">{cleaner.name}</p>
+                      <p className="text-xs text-bark-400">
+                        {cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => startEdit(cleaner)}
+                      className="text-sm text-moss-600 hover:text-moss-800 px-2 py-1"
+                    >
+                      {'\uC218\uC815'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(cleaner)}
+                      className="text-sm text-red-500 hover:text-red-700 px-2 py-1"
+                    >
+                      {'\uC0AD\uC81C'}
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-bark-800">{cleaner.name}</p>
-                  <p className="text-xs text-bark-400">
-                    {cleaner.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => handleDelete(cleaner)}
-                className="text-sm text-red-500 hover:text-red-700 px-3 py-1"
-              >
-                {'\uC0AD\uC81C'}
-              </button>
+              )}
             </div>
           ))
         )}
