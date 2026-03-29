@@ -28,6 +28,7 @@ export default function AssignPage() {
   const [selectedCleaner, setSelectedCleaner] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     fetch('/api/cleaners')
@@ -155,11 +156,8 @@ export default function AssignPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      const summary = data.results
-        .map((r: { cleanerName: string; zoneCount: number }) => `${r.cleanerName}: ${r.zoneCount}\uAD6C\uC5ED`)
-        .join('\n');
-      alert(`\uBC30\uC815 \uC644\uB8CC!\n${summary}`);
-      router.push('/admin');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (e) {
       alert(`\uBC30\uC815 \uC2E4\uD328: ${e instanceof Error ? e.message : '\uC54C \uC218 \uC5C6\uB294 \uC624\uB958'}`);
     } finally {
@@ -270,8 +268,11 @@ export default function AssignPage() {
             disabled={submitting || totalAssigned === 0}
             className="btn-primary w-full"
           >
-            {submitting ? '\uC0DD\uC131 \uC911...' : '\uCCAD\uC18C \uC138\uC158 \uC0DD\uC131'}
+            {submitting ? '\uC800\uC7A5 \uC911...' : '\uC800\uC7A5\uD558\uAE30'}
           </button>
+          {saved && (
+            <p className="text-center text-xs text-moss-600 font-medium animate-pulse">{'\uC800\uC7A5 \uC644\uB8CC! \uCCAD\uC18C \uC5C5\uBB34\uAC00 \uBC30\uBD84\uB418\uC5C8\uC2B5\uB2C8\uB2E4.'}</p>
+          )}
         </div>
       </div>
     </div>
