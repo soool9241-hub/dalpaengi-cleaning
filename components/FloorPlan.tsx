@@ -44,6 +44,10 @@ export default function FloorPlan({ onZoneClick, getZoneColor, getZoneLabel }: F
     // 외부 - 바베큐 (우측 초록 영역)
     { id: 'bbq', name: '\uBC14\uBCA0\uD050', icon: '\uD83D\uDD25',
       top: '22%', left: '58%', width: '22%', height: '58%' },
+
+    // 현관
+    { id: 'entrance', name: '\uD604\uAD00', icon: '\uD83D\uDEAA',
+      top: '82%', left: '32%', width: '16%', height: '10%' },
   ];
 
   return (
@@ -52,13 +56,6 @@ export default function FloorPlan({ onZoneClick, getZoneColor, getZoneLabel }: F
       <div className="relative w-full bg-bark-50 rounded-2xl border border-bark-200 overflow-hidden"
         style={{ paddingBottom: '75%' /* aspect ratio */ }}
       >
-        {/* 현관 표시 */}
-        <div className="absolute flex items-center justify-center text-[10px] text-bark-400 font-medium border border-dashed border-bark-300 rounded-lg bg-white/50"
-          style={{ top: '82%', left: '32%', width: '16%', height: '8%' }}
-        >
-          {'\uD83D\uDEAA \uD604\uAD00'}
-        </div>
-
         {/* 외부 잔디 배경 */}
         <div className="absolute rounded-xl bg-green-100/60"
           style={{ top: '18%', left: '55%', width: '28%', height: '68%', zIndex: 0 }}
@@ -96,9 +93,8 @@ export default function FloorPlan({ onZoneClick, getZoneColor, getZoneLabel }: F
 
       {/* 범례 */}
       <div className="flex items-center justify-between px-1 text-[10px] text-bark-400">
-        <span>{'\uD83C\uDFE0 \uB0B4\uBD80 9\uAD6C\uC5ED'}</span>
+        <span>{'\uD83C\uDFE0 \uB0B4\uBD80 10\uAD6C\uC5ED'}</span>
         <span>{'\uD83D\uDD25 \uC678\uBD80 1\uAD6C\uC5ED (\uBC14\uBCA0\uD050)'}</span>
-        <span>{'\uD83D\uDEAA \uD604\uAD00'}</span>
       </div>
     </div>
   );

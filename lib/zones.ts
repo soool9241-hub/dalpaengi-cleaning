@@ -233,6 +233,26 @@ export const ZONES: Zone[] = [
       '\uC57C\uC678 \uC218\uB3C4\uAF2D\uC9C0/\uD638\uC2A4 \uC815\uB9AC',
     ],
   },
+  {
+    id: 'entrance',
+    icon: '\uD83D\uDEAA',
+    name: '\uD604\uAD00',
+    category: 'interior',
+    categoryLabel: '\uB0B4\uBD80',
+    photoHint: '\uD604\uAD00 \uBC14\uB2E5, \uC2E0\uBC1C\uC7A5, \uBB38 \uC8FC\uBCC0',
+    minPhotos: 1,
+    recommendVideo: false,
+    estimatedMinutes: 10,
+    difficulty: 1,
+    tasks: [
+      '\uD604\uAD00 \uBC14\uB2E5 \uC4F8\uAE30 + \uBB3C\uAC78\uB808',
+      '\uC2E0\uBC1C\uC7A5 \uC815\uB9AC \uC815\uB3C8',
+      '\uD604\uAD00\uBB38 \uC720\uB9AC/\uC190\uC7A1\uC774 \uB2E6\uAE30',
+      '\uC6B0\uD3B8\uBB3C/\uD0DD\uBC30 \uD655\uC778 \uBC0F \uC815\uB9AC',
+      '\uC870\uBA85 \uC810\uAC80 + \uB2E6\uAE30',
+      '\uBB38 \uC7A0\uAE08\uC7A5\uCE58 \uC815\uC0C1 \uC791\uB3D9 \uD655\uC778',
+    ],
+  },
 ];
 
 export const INTERIOR_ZONES = ZONES.filter(z => z.category === 'interior');
