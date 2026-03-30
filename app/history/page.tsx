@@ -29,7 +29,9 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [filterCleaner, setFilterCleaner] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterDate, setFilterDate] = useState('all');
   const [cleanerNames, setCleanerNames] = useState<string[]>([]);
+  const [dates, setDates] = useState<string[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -43,6 +45,7 @@ export default function HistoryPage() {
       const list = (data || []) as Session[];
       setSessions(list);
       setCleanerNames(Array.from(new Set(list.map(s => s.cleaner_name))));
+      setDates(Array.from(new Set(list.map(s => s.session_date))).sort().reverse());
       setLoading(false);
     };
     load();
@@ -51,6 +54,7 @@ export default function HistoryPage() {
   const filtered = sessions.filter(s => {
     if (filterCleaner !== 'all' && s.cleaner_name !== filterCleaner) return false;
     if (filterStatus !== 'all' && s.status !== filterStatus) return false;
+    if (filterDate !== 'all' && s.session_date !== filterDate) return false;
     return true;
   });
 
@@ -90,28 +94,42 @@ export default function HistoryPage() {
       <h1 className="text-xl font-bold text-bark-800">{'\uCCAD\uC18C \uC774\uB825'}</h1>
 
       {/* Filters */}
-      <div className="flex gap-2">
-        <select
-          value={filterCleaner}
-          onChange={e => setFilterCleaner(e.target.value)}
-          className="flex-1 input-field text-sm !py-2"
-        >
-          <option value="all">{'\uCCAD\uC18C\uC790 \uC804\uCCB4'}</option>
-          {cleanerNames.map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
-        <select
-          value={filterStatus}
-          onChange={e => setFilterStatus(e.target.value)}
-          className="flex-1 input-field text-sm !py-2"
-        >
-          <option value="all">{'\uC0C1\uD0DC \uC804\uCCB4'}</option>
-          <option value="in_progress">{'\uC9C4\uD589 \uC911'}</option>
-          <option value="completed">{'\uAC80\uC218 \uB300\uAE30'}</option>
-          <option value="reviewed">{'\uAC80\uC218 \uC644\uB8CC'}</option>
-          <option value="rejected">{'\uBC18\uB824'}</option>
-        </select>
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <select
+            value={filterDate}
+            onChange={e => setFilterDate(e.target.value)}
+            className="flex-1 input-field text-sm !py-2"
+          >
+            <option value="all">{'\uB0A0\uC9DC \uC804\uCCB4'}</option>
+            {dates.map(date => (
+              <option key={date} value={date}>{formatDate(date)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={filterCleaner}
+            onChange={e => setFilterCleaner(e.target.value)}
+            className="flex-1 input-field text-sm !py-2"
+          >
+            <option value="all">{'\uCCAD\uC18C\uC790 \uC804\uCCB4'}</option>
+            {cleanerNames.map(name => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            className="flex-1 input-field text-sm !py-2"
+          >
+            <option value="all">{'\uC0C1\uD0DC \uC804\uCCB4'}</option>
+            <option value="in_progress">{'\uC9C4\uD589 \uC911'}</option>
+            <option value="completed">{'\uAC80\uC218 \uB300\uAE30'}</option>
+            <option value="reviewed">{'\uAC80\uC218 \uC644\uB8CC'}</option>
+            <option value="rejected">{'\uBC18\uB824'}</option>
+          </select>
+        </div>
       </div>
 
       <p className="text-xs text-bark-400 px-1">{'\uCD1D'} {filtered.length}{'\uAC74'} / {allDates.length}{'\uD68C\uCC28'}</p>
