@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Create check items only for assigned zones
-      const checkItems: { session_id: string; zone_id: string; task_index: number; task_name: string; is_checked: boolean }[] = [];
+      const checkItems: { session_id: string; zone_id: string; zone_name: string; zone_category: string; task_index: number; task_text: string; is_checked: boolean }[] = [];
 
       for (const zoneId of zoneIds) {
         const zone = ZONES.find(z => z.id === zoneId);
@@ -47,8 +47,10 @@ export async function POST(req: NextRequest) {
           checkItems.push({
             session_id: session.id,
             zone_id: zoneId,
+            zone_name: zone.name,
+            zone_category: zone.category,
             task_index: index,
-            task_name: task,
+            task_text: task,
             is_checked: false,
           });
         });
